@@ -1,0 +1,91 @@
+package com.idiot.servlet;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/bookList")
+public class BookListServlet extends HttpServlet {
+	
+	 private static final String query = "SELECT ID,BOOKNAME,BOOKEDITION,BOOKPRICE FROM BOOKDATA";
+	    @Override
+	    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	        //get PrintWriter
+	        PrintWriter pw = res.getWriter();
+	        //set content type
+	        res.setContentType("text/html");
+	        //LOAD jdbc driver
+	        try {
+	            Class.forName("com.mysql.cj.jdbc.Driver");
+	        } catch (ClassNotFoundException cnf) {
+	            cnf.printStackTrace();
+	        }
+	        //generate the connection
+	        try (Connection con = DriverManager.getConnection("jdbc:mysql:///book", "root", "mahalakshmi"); PreparedStatement ps = con.prepareStatement(query);) {
+	            ResultSet rs = ps.executeQuery();
+//	            pw.println("<table border='1' align='center'>");
+//	            pw.println("<tr>");
+//	            pw.println("<th>Book Id</th>");
+//	            pw.println("<th>Book Name</th>");
+//	            pw.println("<th>Book Edition</th>");
+//	            pw.println("<th>Book Price</th>");
+//	            pw.println("<th>Edit</th>");
+//	            pw.println("<th>Delete</th>");
+//	            pw.println("</tr>");
+	            
+	            pw.println("<html>");
+	            pw.println("<head>");
+	            pw.println("<link rel='stylesheet' href='css/bootstrap.min.css'>");
+	            pw.println("</head>");
+	            pw.println("<body class='bg-light'>");
+	            pw.println("<div class='container mt-5'>");
+	            pw.println("<h2 class='text-center'>Book List</h2>");
+	            pw.println("<table class='table table-striped table-bordered'>");
+	            pw.println("<thead class='thead-dark'>");
+	            pw.println("<tr>");
+	            pw.println("<th>Book Id</th>");
+	            pw.println("<th>Book Name</th>");
+	            pw.println("<th>Book Edition</th>");
+	            pw.println("<th>Book Price</th>");
+	            pw.println("<th>Edit</th>");
+	            pw.println("<th>Delete</th>");
+	            pw.println("</tr>");
+	            pw.println("</thead>");
+	            pw.println("<tbody>");
+	            
+	            while (rs.next()) {
+	                pw.println("<tr>");
+	                pw.println("<td>" + rs.getInt(1) + "</td>");
+	                pw.println("<td>" + rs.getString(2) + "</td>");
+	                pw.println("<td>" + rs.getString(3) + "</td>");
+	                pw.println("<td>" + rs.getFloat(4) + "</td>");
+	                pw.println("<td><a href='editScreen?id=" + rs.getInt(1) + "'>Edit</a></td>");
+	                pw.println("<td><a href='deleteurl?id=" + rs.getInt(1) + "'>Delete</a></td>");
+	                pw.println("</tr>");
+	            }
+	            pw.println("</table>");
+	        } catch (SQLException se) {
+	            se.printStackTrace();
+	            pw.println("<h1>" + se.getMessage() + "</h2>");
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            pw.println("<h1>" + e.getMessage() + "</h2>");
+	        }
+	        pw.println("<a href='home.html'>Home</a>");
+	        
+	    }
+	    @Override
+	    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	        doGet(req, res);
+	    }
+
+}
